@@ -11,13 +11,14 @@
 <body class="flex container flex-col">
     <div class="flex container flex-col items-center">
         <div class="text-3xl">
-            Title
+            Upload DOCX File to Extract Images
         </div>
-        <button class="btn btn-ghost">
-            Hello
-        </button>
-        <!-- Add download button -->
-        <a href="/download" class="btn btn-primary mt-4">Download Document</a>
+        
+        <!-- File Upload Form -->
+        <form action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+            <input type="file" name="docx_file" accept=".docx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
+            <button type="submit" class="btn btn-primary mt-4">Upload and Extract</button>
+        </form>
     </div>
 </body>
 </html>
