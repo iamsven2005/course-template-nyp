@@ -4,9 +4,9 @@ from flask import Flask, render_template, send_file
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import os
-import shutil
 from PIL import Image
+import base64
+import requests
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -14,28 +14,23 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
-    SESSION_COOKIE_SECURE=False 
+    SESSION_COOKIE_SECURE=False
 )
 
-# Define paths for static files
-SOURCE_FILE_PATH = "api/static/source.docx"  # Replace with your actual source document path
-EXTRACTED_IMAGES_PATH = os.path.join("static", "extracted_images")
+SOURCE_FILE_PATH = "static/source.docx"  # Replace with your actual source document path
 
-def extract_images_from_docx(source_path, destination_folder):
-    """Extracts all images from a DOCX file and saves them in the specified folder."""
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
-    else:
-        shutil.rmtree(destination_folder)  # Clear folder if exists
-        os.makedirs(destination_folder)
-
+def extract_images_as_base64(source_path):
+    """Extracts images from a DOCX file as base64-encoded strings."""
+    images_base64 = []
     with zipfile.ZipFile(source_path, 'r') as z:
         for file_name in z.namelist():
             if file_name.startswith('word/media/'):
-                # Extract and save each media file (typically images)
-                extracted_path = os.path.join(destination_folder, os.path.basename(file_name))
-                with z.open(file_name) as source_file, open(extracted_path, 'wb') as output_file:
-                    output_file.write(source_file.read())
+                with z.open(file_name) as source_file:
+                    # Convert image data to base64
+                    image_bytes = source_file.read()
+                    base64_image = base64.b64encode(image_bytes).decode('utf-8')
+                    images_base64.append((file_name, base64_image))
+    return images_base64
 
 def create_document():
     # Create a new document
@@ -77,21 +72,22 @@ def create_document():
         table.cell(i, 1).text = data[1]
         table.cell(i, 2).text = data[2]
 
-    # Extract and add images to the document
+    # Add extracted images to the document
     doc.add_heading('Section 3: Extracted Images', level=2)
-    doc.add_paragraph('Here are the images extracted from the source document:')
+    doc.add_paragraph('Here are the images extracted and added from the source document (as base64):')
 
-    # Extract images from the source file
-    extract_images_from_docx(SOURCE_FILE_PATH, EXTRACTED_IMAGES_PATH)
+    # Extract images as base64
+    images_base64 = extract_images_as_base64(SOURCE_FILE_PATH)
 
-    # Add extracted images to the document with appropriate sizes
-    for image_filename in os.listdir(EXTRACTED_IMAGES_PATH):
-        image_path = os.path.join(EXTRACTED_IMAGES_PATH, image_filename)
+    for image_filename, image_b64 in images_base64:
         doc.add_paragraph(f'Adding image: {image_filename}')
 
-        # Open the image using PIL to determine its size
-        with Image.open(image_path) as img:
-            # Calculate the aspect ratio and set a max width/height while preserving aspect ratio
+        # Decode base64 image and open with PIL
+        image_data = base64.b64decode(image_b64)
+        image_stream = BytesIO(image_data)
+
+        # Open image with PIL to determine size
+        with Image.open(image_stream) as img:
             max_width = 6.0  # Max width in inches
             width, height = img.size
             aspect_ratio = width / height
@@ -104,7 +100,7 @@ def create_document():
                 adjusted_width = adjusted_height * aspect_ratio
 
             # Add the image to the document
-            doc.add_picture(image_path, width=Inches(adjusted_width), height=Inches(adjusted_height))
+            doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
 
     # Save the document to an in-memory file
     doc_io = BytesIO()
@@ -129,7 +125,6 @@ def download_file():
     except Exception as e:
         app.logger.error(f"Error during document creation: {str(e)}")
         return "An error occurred", 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
