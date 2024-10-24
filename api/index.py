@@ -6,7 +6,10 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import requests
 
 app = Flask(__name__)
-
+app.config.update(
+    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_SECURE=True  # Required for SameSite=None to work
+)
 def create_document():
     # Create a new document
     doc = Document()
