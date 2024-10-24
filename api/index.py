@@ -1,9 +1,9 @@
+from io import BytesIO
 from flask import Flask, render_template, send_file
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import os
-
 app = Flask(__name__)
 
 def create_document():
@@ -51,15 +51,13 @@ def create_document():
     # Add an image (optional - use a placeholder image path)
     doc.add_heading('Section 3: Image', level=2)
     doc.add_paragraph('Here is an image:')
-    # Ensure that the image path exists, otherwise this line will cause an error
-    # Replace 'image.jpeg' with a valid path
     if os.path.exists('image.jpeg'):
         doc.add_picture('image.jpeg', width=Pt(300))
-
-    # Save the document
-    doc_path = 'example_document.docx'
-    doc.save(doc_path)
-    return doc_path
+    # Save the document to an in-memory file
+    doc_io = BytesIO()
+    doc.save(doc_io)
+    doc_io.seek(0)  # Go back to the beginning of the BytesIO object
+    return doc_io
 
 @app.route("/")
 @app.route("/index")
@@ -69,15 +67,10 @@ def index():
 @app.route("/download")
 def download_file():
     # Create the document dynamically
-    doc_path = create_document()
+    doc_io = create_document()
 
-    # Send the file for download
-    response = send_file(doc_path, as_attachment=True)
-
-    # Delete the file after sending
-    os.remove(doc_path)
-
-    return response
+    # Send the file for download as a response, using the in-memory file object
+    return send_file(doc_io, as_attachment=True, download_name='example_document.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
 if __name__ == '__main__':
     app.run(debug=True)
