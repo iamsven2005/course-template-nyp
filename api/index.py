@@ -54,7 +54,7 @@ def create_document():
     doc.add_paragraph('Here is an image from a URL:')
     
     # Fetch image from a URL
-    image_url = 'https://course-template-nyp.vercel.app/image.jpeg'  # Replace with the actual URL
+    image_url = 'https://raw.githubusercontent.com/iamsven2005/course-template-nyp/main/api/image.jpeg'  # Replace with the actual URL
     response = requests.get(image_url)
     if response.status_code == 200:
         image_stream = BytesIO(response.content)
