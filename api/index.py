@@ -1,15 +1,42 @@
+import zipfile
 from io import BytesIO
 from flask import Flask, render_template, send_file
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import requests
+import os
+import shutil
+from PIL import Image
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
-    SESSION_COOKIE_SECURE=True  # Required for SameSite=None to work
+    SESSION_COOKIE_SECURE=False 
 )
+
+# Define paths for static files
+SOURCE_FILE_PATH = "api/static/source.docx"  # Replace with your actual source document path
+EXTRACTED_IMAGES_PATH = os.path.join("static", "extracted_images")
+
+def extract_images_from_docx(source_path, destination_folder):
+    """Extracts all images from a DOCX file and saves them in the specified folder."""
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+    else:
+        shutil.rmtree(destination_folder)  # Clear folder if exists
+        os.makedirs(destination_folder)
+
+    with zipfile.ZipFile(source_path, 'r') as z:
+        for file_name in z.namelist():
+            if file_name.startswith('word/media/'):
+                # Extract and save each media file (typically images)
+                extracted_path = os.path.join(destination_folder, os.path.basename(file_name))
+                with z.open(file_name) as source_file, open(extracted_path, 'wb') as output_file:
+                    output_file.write(source_file.read())
+
 def create_document():
     # Create a new document
     doc = Document()
@@ -39,8 +66,6 @@ def create_document():
     doc.add_heading('Section 2: Data', level=2)
     table = doc.add_table(rows=4, cols=3)
     table.style = 'Table Grid'
-    table.autofit = False
-    table.allow_autofit = False
     for row in table.rows:
         for cell in row.cells:
             cell.width = Pt(100)
@@ -52,16 +77,34 @@ def create_document():
         table.cell(i, 1).text = data[1]
         table.cell(i, 2).text = data[2]
 
-    # Add an image from a URL
-    doc.add_heading('Section 3: Image', level=2)
-    doc.add_paragraph('Here is an image from a URL:')
-    
-    # Fetch image from a URL
-    image_url = 'https://raw.githubusercontent.com/iamsven2005/course-template-nyp/main/api/image.jpeg'  # Replace with the actual URL
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        image_stream = BytesIO(response.content)
-        doc.add_picture(image_stream, width=Pt(300))
+    # Extract and add images to the document
+    doc.add_heading('Section 3: Extracted Images', level=2)
+    doc.add_paragraph('Here are the images extracted from the source document:')
+
+    # Extract images from the source file
+    extract_images_from_docx(SOURCE_FILE_PATH, EXTRACTED_IMAGES_PATH)
+
+    # Add extracted images to the document with appropriate sizes
+    for image_filename in os.listdir(EXTRACTED_IMAGES_PATH):
+        image_path = os.path.join(EXTRACTED_IMAGES_PATH, image_filename)
+        doc.add_paragraph(f'Adding image: {image_filename}')
+
+        # Open the image using PIL to determine its size
+        with Image.open(image_path) as img:
+            # Calculate the aspect ratio and set a max width/height while preserving aspect ratio
+            max_width = 6.0  # Max width in inches
+            width, height = img.size
+            aspect_ratio = width / height
+
+            if width > height:
+                adjusted_width = min(max_width, width / 96)  # Convert pixels to inches (assuming 96 dpi)
+                adjusted_height = adjusted_width / aspect_ratio
+            else:
+                adjusted_height = min(max_width, height / 96)
+                adjusted_width = adjusted_height * aspect_ratio
+
+            # Add the image to the document
+            doc.add_picture(image_path, width=Inches(adjusted_width), height=Inches(adjusted_height))
 
     # Save the document to an in-memory file
     doc_io = BytesIO()
@@ -76,11 +119,17 @@ def index():
 
 @app.route("/download")
 def download_file():
-    # Create the document dynamically
-    doc_io = create_document()
+    try:
+        doc_io = create_document()
+        app.logger.info("Document created successfully.")
+        return send_file(doc_io, as_attachment=True, download_name='example_document.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    except PermissionError as perm_err:
+        app.logger.error(f"Permission error: {str(perm_err)}")
+        return "Permission error occurred", 403
+    except Exception as e:
+        app.logger.error(f"Error during document creation: {str(e)}")
+        return "An error occurred", 500
 
-    # Send the file for download as a response, using the in-memory file object
-    return send_file(doc_io, as_attachment=True, download_name='example_document.docx', mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
 if __name__ == '__main__':
     app.run(debug=True)
