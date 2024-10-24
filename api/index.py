@@ -3,7 +3,8 @@ from flask import Flask, render_template, send_file
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import os
+import requests
+
 app = Flask(__name__)
 
 def create_document():
@@ -48,11 +49,17 @@ def create_document():
         table.cell(i, 1).text = data[1]
         table.cell(i, 2).text = data[2]
 
-    # Add an image (optional - use a placeholder image path)
+    # Add an image from a URL
     doc.add_heading('Section 3: Image', level=2)
-    doc.add_paragraph('Here is an image:')
-    if os.path.exists('static/image.jpeg'):
-        doc.add_picture('static/image.jpeg', width=Pt(300))
+    doc.add_paragraph('Here is an image from a URL:')
+    
+    # Fetch image from a URL
+    image_url = 'https://course-template-nyp.vercel.app/image.jpeg'  # Replace with the actual URL
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        image_stream = BytesIO(response.content)
+        doc.add_picture(image_stream, width=Pt(300))
+
     # Save the document to an in-memory file
     doc_io = BytesIO()
     doc.save(doc_io)
