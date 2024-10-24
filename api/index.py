@@ -51,8 +51,8 @@ def create_document():
     # Add an image (optional - use a placeholder image path)
     doc.add_heading('Section 3: Image', level=2)
     doc.add_paragraph('Here is an image:')
-    if os.path.exists('image.jpeg'):
-        doc.add_picture('image.jpeg', width=Pt(300))
+    if os.path.exists('static/image.jpeg'):
+        doc.add_picture('static/image.jpeg', width=Pt(300))
     # Save the document to an in-memory file
     doc_io = BytesIO()
     doc.save(doc_io)
