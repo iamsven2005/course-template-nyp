@@ -2,7 +2,7 @@ import zipfile
 from io import BytesIO
 from flask import Flask, render_template, send_file, request
 from docx import Document
-from docx.shared import Pt, Inches
+from docx.shared import Pt, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from PIL import Image
 import base64
@@ -249,17 +249,20 @@ def create_document(images_base64, base64_img_first):
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
 
-    competence = doc.add_paragraph('Course Competencies')
+    competence = doc.add_paragraph('Course Competencies', style='Heading 1')
     Course_competence = competence.runs[0]
     Course_competence.font.size = Pt(16)
     Course_competence.font.name = 'Arial'
     Course_competence.bold = True
+    Course_competence.font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
 
 
-    Semester = doc.add_paragraph('Year 1 – Semester 1 & 2')
+    Semester = doc.add_paragraph('Year 1 – Semester 1 & 2', style='Heading 2')
     Sem = Semester.runs[0]
     Sem.font.size = Pt(12)
     Sem.font.name = 'Arial'
+    Sem.font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
+
 
     # Create the table with 4 columns (Core Learning Units, Hours, Credits)
     table = doc.add_table(rows=1, cols=3)
@@ -297,9 +300,15 @@ def create_document(images_base64, base64_img_first):
         row_cells[2].text = str(credits)
 
     doc.add_paragraph('')
+    doc.add_paragraph('')
+    doc.add_paragraph('')
+    doc.add_paragraph('')
+
+
+
 
     # Add "Year 2 – Semester 1 & 2" as a heading
-    doc.add_paragraph('Year 2 – Semester 1 & 2')
+    doc.add_paragraph('Year 2 – Semester 1 & 2', style='Heading 2').runs[0].font.color.rgb = RGBColor(0, 0, 0)
 
     # Create the table for Year 2 – Semester 1 & 2
     table2 = doc.add_table(rows=1, cols=3)
@@ -348,7 +357,7 @@ def create_document(images_base64, base64_img_first):
                         run.font.name = 'Arial'
 
 
-    doc.add_paragraph('Year 3 – Semester 1 & 2')
+    doc.add_paragraph('Year 3 – Semester 1 & 2', style='Heading 2').runs[0].font.color.rgb = RGBColor(0, 0, 0)
 
     # Create the table for Year 3 – Semester 1 & 2
     table = doc.add_table(rows=1, cols=3)
@@ -385,10 +394,12 @@ def create_document(images_base64, base64_img_first):
         row_cells[2].text = str(credits)
 
     # Add "Electives" section heading
-    doc.add_paragraph('Electives')
+    electives_heading = doc.add_paragraph('Electives', style='Heading 1')
+    electives_heading.runs[0].font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
 
     # Add "Prescribed Elective" as a subheading
-    doc.add_paragraph('Prescribed Elective').bold = True
+    prescribed_elective_heading = doc.add_paragraph('Prescribed Elective', style='Heading 2')
+    prescribed_elective_heading.runs[0].font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
 
     # Create the table for Electives
     table2 = doc.add_table(rows=1, cols=3)
@@ -420,7 +431,7 @@ def create_document(images_base64, base64_img_first):
                         run.font.name = 'Arial'
 
 
-    doc.add_paragraph('ITB111 UX DESIGN')
+    doc.add_paragraph('ITB111 UX DESIGN', style='Heading 2')
 
     # Add course details table (Course, Course Code, Year, Duration, etc.)
     table = doc.add_table(rows=6, cols=4)
