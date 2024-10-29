@@ -16,9 +16,14 @@
         
         <!-- File Upload Form -->
         <form action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+            <label for="docx_file">Upload DOCX File:</label>
             <input type="file" name="docx_file" accept=".docx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
+        
+            <label for="xlsx_file" class="mt-4">Upload XLSX File:</label>
+            <input type="file" name="xlsx_file" accept=".xlsx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
+            
             <button type="submit" class="btn btn-primary mt-4">Upload and Extract</button>
-        </form>
+        </form>        
     </div>
 </body>
 </html>
