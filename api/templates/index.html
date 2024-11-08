@@ -8,14 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex container flex-col">
-    <div class="flex container flex-col items-center">
-        <div class="text-3xl">
-            Upload DOCX File to Extract Images
+<body class="card items-center mx-auto p-6">
+    <div class="card-body">
+        <div class="card-title">
+            Upload files to extract images
         </div>
         
         <!-- File Upload Form -->
-        <form action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+        <form action="/upload" method="post" enctype="multipart/form-data" class="flex flex-wrap flex-col">
             <label for="docx_file">Upload DOCX File:</label>
             <input type="file" name="docx_file" accept=".docx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
         

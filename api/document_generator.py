@@ -33,11 +33,48 @@ def create_document(images_base64, base64_img_first, file):
     doc.add_paragraph('')
     doc.add_paragraph('')
 
-    title = doc.add_paragraph('School of Information Technology')
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = title.runs[0]
-    run.font.size = Pt(24)
-    run.font.name = 'Arial'
+
+    file_extension_school = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_school == 'xlsx':
+        workbook_school = load_workbook(file)
+        cover_page_school = workbook_school['Cover Page']
+        diploma_text = cover_page_school['C6'].value.upper()
+        if diploma_text.startswith("IT"):
+            it_paragraph = doc.add_paragraph("Diploma in Information Technology")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
+        elif diploma_text.startswith("BM"):
+            it_paragraph = doc.add_paragraph("Diploma in Business Management")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
+        elif diploma_text.startswith("DM"):
+            it_paragraph = doc.add_paragraph("Diploma in Design & Media")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
+        elif diploma_text.startswith("HS"):
+            it_paragraph = doc.add_paragraph("Diploma in Health & Social Sciences")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
+        elif diploma_text.startswith("EG"):
+            it_paragraph = doc.add_paragraph("Diploma in Engineering")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
+        else:
+            it_paragraph = doc.add_paragraph("Diploma in NYP")
+            it_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            it_run = it_paragraph.runs[0]
+            it_run.font.size = Pt(24)
+            it_run.font.name = 'Arial'
 
 
     course = doc.add_paragraph('Course Syllabi for')
@@ -65,12 +102,16 @@ def create_document(images_base64, base64_img_first, file):
     doc.add_paragraph('')
     doc.add_paragraph('')
 
-
-    year = doc.add_paragraph('Academic Year 2021/2022')
-    year.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run3 = diploma.runs[0]
-    run3.font.size = Pt(18)
-    run3.font.name = 'Arial'
+    file_extension_year = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_year == 'xlsx':
+        workbook_year = load_workbook(file)
+        cover_page_year = workbook_year['Cover Page']
+        diploma_text_year = cover_page_year['C12'].value.upper()
+        year = doc.add_paragraph(diploma_text_year)
+        year.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run3 = diploma.runs[0]
+        run3.font.size = Pt(18)
+        run3.font.name = 'Arial'
 
 
     doc.add_paragraph('')
@@ -83,7 +124,7 @@ def create_document(images_base64, base64_img_first, file):
     run4.font.name = 'Arial'
 
 
-    title1 = doc.add_paragraph('DIPLOMA IN APPLIED AI & ANALYTICS (DAAA)')
+    title1 = doc.add_paragraph(diploma_text)
     run5 = title1.runs[0]
     run5.font.size = Pt(16)
     run5.font.name = 'Arial'
