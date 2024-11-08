@@ -11,7 +11,7 @@
 <body class="card items-center mx-auto p-6">
     <div class="card-body">
         <div class="card-title">
-            Upload files to extract images
+            Upload files and input topics with learning units
         </div>
         
         <!-- File Upload Form -->
@@ -22,8 +22,37 @@
             <label for="xlsx_file" class="mt-4">Upload XLSX File:</label>
             <input type="file" name="xlsx_file" accept=".xlsx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
             
-            <button type="submit" class="btn btn-primary mt-4">Upload and Extract</button>
-        </form>        
+            <!-- Dynamic Input Fields for Topics and Learning Units -->
+            <div id="topic-fields" class="mt-4">
+                <label>Topics and Learning Units:</label>
+                <div class="flex space-x-2 mt-2">
+                    <input type="text" name="topics[]" placeholder="Enter topic" class="input input-bordered w-full">
+                    <input type="text" name="learning_units[]" placeholder="Enter learning unit" class="input input-bordered w-full">
+                    <button type="button" onclick="addField()" class="btn btn-secondary">Add</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-4">Upload and Submit</button>
+        </form>
     </div>
+
+    <!-- JavaScript to Add/Remove Fields -->
+    <script>
+        function addField() {
+            const topicFields = document.getElementById("topic-fields");
+            const newField = document.createElement("div");
+            newField.classList.add("flex", "space-x-2", "mt-2");
+            newField.innerHTML = `
+                <input type="text" name="topics[]" placeholder="Enter topic" class="input input-bordered w-full">
+                <input type="text" name="learning_units[]" placeholder="Enter learning unit" class="input input-bordered w-full">
+                <button type="button" onclick="removeField(this)" class="btn btn-error">Remove</button>
+            `;
+            topicFields.appendChild(newField);
+        }
+
+        function removeField(button) {
+            button.parentElement.remove();
+        }
+    </script>
 </body>
 </html>

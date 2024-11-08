@@ -6,7 +6,7 @@ from PIL import Image
 import base64                                
 from openpyxl import load_workbook           
 
-def create_document(images_base64, base64_img_first, file):
+def create_document(images_base64, base64_img_first, file, word_doc_path):
     """Create a DOCX document with a provided base64 image first and extracted base64 images."""
     doc = Document()
     image_data = base64.b64decode(base64_img_first)
@@ -129,23 +129,7 @@ def create_document(images_base64, base64_img_first, file):
     run5.font.size = Pt(16)
     run5.font.name = 'Arial'
     run5.bold = True
-
-
-    para1 = doc.add_paragraph('The Diploma in Applied AI & Analytics (DAAA) is the pilot programme to implement the NYP’s Professional Competency Model (PCM) as its pedagogical model. PCM is an inter- disciplinary competency-based learning model that mirrors workplace practices and intrinsically supports lifelong learning continuum. It was first launched in June 2020 and implemented in the Diploma in Business Intelligence & Analytics (DBA) in April 2021. The renaming from DBA to DAAA will have no impact to the curriculum.')
-    run6 = para1.runs[0]
-    run6.font.size = Pt(12)
-    run6.font.name = 'Arial'
-
-    doc.add_paragraph('')
-
-    para2 = doc.add_paragraph('In PCM, learners develop competencies through stackable learning units known as Competency Units (CmUs). CmUs are pegged at varying levels to scaffold learners’ competencies development towards skills mastery. Under PCM, PET learners will develop competencies up to Complexity Level 5 while Continuing Education and Training (CET) learners up to Complexity Level 7.')
-    run7 = para2.runs[0]
-    run7.font.size = Pt(12)
-    run7.font.name = 'Arial'
-
-    doc.add_paragraph('')
-    doc.add_paragraph('')
-
+        
 
     title2 = doc.add_paragraph('Course Aims')
     run8 = title2.runs[0]
@@ -153,12 +137,14 @@ def create_document(images_base64, base64_img_first, file):
     run8.font.name = 'Arial'
     run8.bold = True
 
-
-
-    para3 = doc.add_paragraph('In PCM, learners develop competencies through stackable learning units known as Competency Units (CmUs). CmUs are pegged at varying levels to scaffold learners’ competencies development towards skills mastery. Under PCM, PET learners will develop competencies up to Complexity Level 5 while Continuing Education and Training (CET) learners up to Complexity Level 7.')
-    run9 = para3.runs[0]
-    run9.font.name = 'Arial'
-    doc.add_page_break()
+    start_section = "Course Aims"
+    end_section = "Course Learning Outcomes"
+    text_between_sections = extract_text_between_sections(word_doc_path, start_section, end_section)
+    
+    course_paragraph = doc.add_paragraph(text_between_sections)
+    course_run = course_paragraph.runs[0]
+    course_run.font.size = Pt(12)
+    course_run.font.name = 'Arial'
 
 
     title3 = doc.add_paragraph('Course Learning Outcomes')
@@ -167,11 +153,38 @@ def create_document(images_base64, base64_img_first, file):
     run10.font.name = 'Arial'
     run10.bold = True
 
+    course_paragraph_outcome = doc.add_paragraph("The competencies of a graduate are synthesized into 9 Course Competencies (CCs) as listed below.")
+    course_run_outcome = course_paragraph_outcome.runs[0]
+    course_run_outcome.font.size = Pt(12)
+    course_run_outcome.font.name = 'Arial'
 
-    para4 = doc.add_paragraph('The desired learning outcomes of the diploma are to educate and train students who, by the time of successful completion of course, will be able to:')
-    run11 = para3.runs[0]
-    run11.font.size = Pt(12)
-    run11.font.name = 'Arial'
+
+    for image_filename, image_b64 in images_base64:
+
+        title2 = doc.add_paragraph('Course Competency Map')
+        run8 = title2.runs[0]
+        run8.font.size = Pt(16)
+        run8.font.name = 'Arial'
+        run8.bold = True
+        # Decode base64 image and open with PIL
+        image_data = base64.b64decode(image_b64)
+        image_stream = BytesIO(image_data)
+
+        # Open image with PIL to determine size
+        with Image.open(image_stream) as img:
+            max_width = 6.0  # Max width in inches
+            width, height = img.size
+            aspect_ratio = width / height
+
+            if width > height:
+                adjusted_width = min(max_width, width / 96)  # Convert pixels to inches (assuming 96 dpi)
+                adjusted_height = adjusted_width / aspect_ratio
+            else:
+                adjusted_height = min(max_width, height / 96)
+                adjusted_width = adjusted_height * aspect_ratio
+
+            doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
+
 
 
     table = doc.add_table(rows=5, cols=2)
@@ -208,16 +221,16 @@ def create_document(images_base64, base64_img_first, file):
     doc.add_page_break()
 
 
-    title4 = doc.add_paragraph('Course Competencies')
-    run12 = title4.runs[0]
-    run12.font.size = Pt(16)
-    run12.font.name = 'Arial'
-    run12.bold = True
+    title_competency = doc.add_paragraph('Competency Canvases')
+    run_course = title_competency.runs[0]
+    run_course.font.size = Pt(16)
+    run_course.font.name = 'Arial'
+    run_course.bold = True
     doc.add_paragraph('')
 
 
 
-    para5 = doc.add_paragraph('The desired learning outcomes of the diploma are to educate and train students who, by the time of successful completion of course, will be able to:')
+    para5 = doc.add_paragraph('The learning outcomes of the diploma are to educate and train students who, by the time of successful completion of course, will be able to:')
     run13 = para5.runs[0]
     run13.font.size = Pt(12)
     run13.font.name = 'Arial'
@@ -266,7 +279,7 @@ def create_document(images_base64, base64_img_first, file):
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
 
-    competence = doc.add_paragraph('Course Competencies', style='Heading 1')
+    competence = doc.add_paragraph('Course Structure', style='Heading 1')
     Course_competence = competence.runs[0]
     Course_competence.font.size = Pt(16)
     Course_competence.font.name = 'Arial'
@@ -425,20 +438,17 @@ def create_document(images_base64, base64_img_first, file):
     hdr_cells2[1].text = 'Hours'
     hdr_cells2[2].text = 'Credits'
 
-    # Define the content for Electives
+    ##elective are not found in the top file
     elective_content = [
         ('IT3388', 'Big Data Management Project', 30, 2),
         ('IT3389', 'Applied AI Project', 30, 2)
     ]
 
-    # Populate the table for Electives
     for unit_code, unit_name, hours, credits in elective_content:
         row_cells = table2.add_row().cells
         row_cells[0].text = f"{unit_code} {unit_name}"
         row_cells[1].text = str(hours)
         row_cells[2].text = str(credits)
-
-    # Optional: Format the table font for both tables
     for table in [table, table2]:
         for row in table.rows:
             for cell in row.cells:
@@ -446,6 +456,18 @@ def create_document(images_base64, base64_img_first, file):
                     for run in paragraph.runs:
                         run.font.size = Pt(11)
                         run.font.name = 'Arial'
+
+    ##Manual Mapping Tables for CMS ##
+    custom = doc.add_paragraph('Mapping Tables for Communication Skills & Mathematics Topics')
+    custom_run = custom.runs[0]
+    custom_run.font.size = Pt(16)
+    custom_run.font.name = 'Arial'
+    custom_run.bold = True
+
+    #TODO: Frontend
+    ##End mapping tabling for cms##
+
+
 
 
     doc.add_paragraph('ITB111 UX DESIGN', style='Heading 2')
@@ -564,31 +586,34 @@ def create_document(images_base64, base64_img_first, file):
         doc.add_paragraph(f'{i}. {reference}', style='List Number')
 
 
-    for image_filename, image_b64 in images_base64:
-        doc.add_paragraph(f'Adding image: {image_filename}')
-
-        # Decode base64 image and open with PIL
-        image_data = base64.b64decode(image_b64)
-        image_stream = BytesIO(image_data)
-
-        # Open image with PIL to determine size
-        with Image.open(image_stream) as img:
-            max_width = 6.0  # Max width in inches
-            width, height = img.size
-            aspect_ratio = width / height
-
-            if width > height:
-                adjusted_width = min(max_width, width / 96)  # Convert pixels to inches (assuming 96 dpi)
-                adjusted_height = adjusted_width / aspect_ratio
-            else:
-                adjusted_height = min(max_width, height / 96)
-                adjusted_width = adjusted_height * aspect_ratio
-
-            # Add the image to the document
-            doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
 
     # Save the document to an in-memory file
     doc_io = BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)  # Go back to the beginning of the BytesIO object
     return doc_io
+
+def extract_text_between_sections(file_path, start_section, end_section):
+    # Open the Word document
+    doc = Document(file_path)
+    
+    # Variables to control extraction
+    extracting = False
+    extracted_text = []
+    
+    for paragraph in doc.paragraphs:
+        # Start extracting after the start section
+        if start_section in paragraph.text:
+            extracting = True
+            continue
+        
+        # Stop extracting when reaching the end section
+        if extracting and end_section in paragraph.text:
+            break
+        
+        # Append text if we're in the extraction range
+        if extracting:
+            extracted_text.append(paragraph.text)
+    
+    # Join extracted paragraphs into a single string
+    return "\n".join(extracted_text)
