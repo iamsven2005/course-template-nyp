@@ -2,12 +2,51 @@ import os
 import base64
 from flask import Flask, render_template, send_file, request
 from werkzeug.utils import secure_filename
-from helpers import allowed_file
-from file_processing import extract_images_as_base64
 from document_generator import create_document
+import zipfile              
+from io import BytesIO        
+from PIL import Image      
+from openpyxl import load_workbook 
+
+ocument with a provided base64 image first and extracted base64 images."""
+    doc = Document()
+    image_data = base64.b64decode(base64_img_first)
+    image_stream = BytesIO(image_data)
+        # Open image with PIL to determine size
+    with Image.open(image_stream) as img:
+        max_width = 6.0  # Max width in inches
+        width, height = img.size
+        aspect_ratio = width / height
 
 app = Flask(__name__)
+ALLOWED_EXTENSIONS = {'docx', 'xlsx'}
 
+
+def extract_images_as_base64(file_stream, file_extension):
+    """Extract images from an uploaded DOCX or XLSX file as base64-encoded strings."""
+    images_base64 = []
+
+    if file_extension == 'docx':
+        with zipfile.ZipFile(file_stream, 'r') as z:
+            for file_name in z.namelist():
+                if file_name.startswith('word/media/'):
+                    with z.open(file_name) as source_file:
+                        image_data = source_file.read()
+                        image_b64 = base64.b64encode(image_data).decode('utf-8')
+                        images_base64.append((file_name, image_b64))
+    elif file_extension == 'xlsx':
+        workbook = load_workbook(file_stream)
+        for sheet in workbook.sheetnames:
+            worksheet = workbook[sheet]
+            for image in worksheet._images:
+                image_data = image._data()
+                image_b64 = base64.b64encode(image_data).decode('utf-8')
+                images_base64.append((image.anchor._from, image_b64))
+
+    return images_base64
+# Helper function to check allowed files
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 def get_base64_image_from_file(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
