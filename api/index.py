@@ -83,8 +83,8 @@ def upload_file():
             images_base64 = extract_images_as_base64(temp_docx_path, docx_extension)
 
             # Get the base64 image of the logo from /logo.png
-            logo_base64 = get_base64_image_from_file("static/img/logo.png")
-
+            logo_base64 = get_base64_image_from_file("public/static/img/logo.png")
+api/logo.png
             # Create document with logo image and XLSX data
             doc_io = create_document(images_base64, logo_base64, xlsx_file, temp_docx_path)
 
