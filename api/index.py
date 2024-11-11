@@ -8,15 +8,6 @@ from io import BytesIO
 from PIL import Image      
 from openpyxl import load_workbook 
 
-ocument with a provided base64 image first and extracted base64 images."""
-    doc = Document()
-    image_data = base64.b64decode(base64_img_first)
-    image_stream = BytesIO(image_data)
-        # Open image with PIL to determine size
-    with Image.open(image_stream) as img:
-        max_width = 6.0  # Max width in inches
-        width, height = img.size
-        aspect_ratio = width / height
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {'docx', 'xlsx'}
