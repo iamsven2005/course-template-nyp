@@ -618,88 +618,82 @@ def create_document(images_base64, base64_img_first, file, word_doc_path):
 
     # Add Synopsis section
     doc.add_paragraph('Synopsis', style='Heading 2')
-    doc.add_paragraph(
-        "User Experience (UX) provides a positive experience through any form of human-computer interaction. "
-        "Through this unit, learners will develop competencies in designing and creating intuitive user interfaces..."
-    )
+    file_extension_Synopsis = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_Synopsis == 'xlsx':
+        workbook_Synopsis = load_workbook(file)
+        cover_page_Synopsis = workbook_Synopsis['Syllabus Summary']
+        diploma_text_Synopsis = cover_page_Synopsis['B12'].value.upper()
+
+    diploma = doc.add_paragraph(diploma_text_Synopsis)
+    doc.add_paragraph(diploma_text_Synopsis)
 
     # Add Learning Outcomes section
     doc.add_paragraph('Learning Outcomes', style='Heading 2')
-    doc.add_paragraph(
-        'At the end of this unit, learners will be able to:\n'
-        '1. Use storyboarding approach to conceptualise and communicate...\n'
-        '2. Design intuitive and accessible user interfaces...\n'
-        '3. Undertake a technical lead role to drive the team...'
-    )
+    doc.add_paragraph('At the end of this unit, learners will be able to:')
+    file_extension_outcome = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_outcome == 'xlsx':
+        workbook_outcome = load_workbook(file)
+        cover_page_outcome = workbook_outcome['Syllabus Summary']
+        diploma_text_outcome1 = cover_page_outcome['C13'].value.upper()
+        doc.add_paragraph(diploma_text_outcome1)
+        diploma_text_outcome2 = cover_page_outcome['C14'].value.upper()
+        doc.add_paragraph(diploma_text_outcome2)
+        diploma_text_outcome3 = cover_page_outcome['C15'].value.upper()
+        doc.add_paragraph(diploma_text_outcome3)
 
     # Add Topics section
     doc.add_paragraph('Topics', style='Heading 2')
-    doc.add_paragraph(
-        '1. Importance of UX/UI in web design\n'
-        '2. Principles of visual design\n'
-        '3. Web accessibility guidelines\n'
-        '4. Web client-server architecture\n'
-        '5. HTML Document, Elements, Attributes\n'
-        '6. CSS Rules and Selectors\n'
-        '7. Interactive Web Development\n'
-        '8. JavaScript and Control Structures\n'
-        '9. JavaScript functions and event handlers\n'
-        '10. JavaScript HTML DOM\n'
-        '11. Design principles and heuristics\n'
-        '12. How to conduct usability testing\n'
-        '13. Communication Skills – Oral presentation...'
-    )
+    file_extension_topics = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_topics == 'xlsx':
+        workbook_topics = load_workbook(file)
+        cover_page_topics = workbook_topics['Syllabus']
+        doc = Document()
+
+        # Start iterating from row 5 in column 'C'
+        for cell in cover_page_topics['C5:C{}'.format(cover_page_topics.max_row)]:
+            for cell_obj in cell:  # cell_obj is each cell within the specified range
+                if cell_obj.value:  # Check if the cell is not empty
+                    diploma_text_topics = cell_obj.value.upper()
+                    doc.add_paragraph(diploma_text_topics)
 
     # Add Key Tasks section
     doc.add_paragraph('Key Tasks', style='Heading 2')
-    doc.add_paragraph(
-        '1. Design and build client-based, user-centered web pages using HTML and CSS\n'
-        '2. Design and build user-centered web forms using interaction design principles\n'
-        '3. Creating responsive layout for web pages\n'
-        '4. Communicate the proposed user interactions and experience to key stakeholders\n'
-        '5. Build interaactive web pages using Javascript\n'
-        '6. Communicate the proposed wrebsite to the key stakeholders'
-    )
+    file_extension_tasks = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_tasks == 'xlsx':
+        workbook_tasks = load_workbook(file)
+        cover_page_tasks = workbook_tasks['Syllabus']
+        doc = Document()
+
+        # Start iterating from row 5 in column 'C'
+        for cell in cover_page_tasks['C5:C{}'.format(cover_page_tasks.max_row)]:
+            for cell_obj in cell:  # cell_obj is each cell within the specified range
+                if cell_obj.value:  # Check if the cell is not empty
+                    diploma_text_tasks = cell_obj.value.upper()
+                    doc.add_paragraph(diploma_text_tasks)
 
     doc.add_paragraph('Assessments', style='Heading 2')
 
     # Create table for assessments
     table = doc.add_table(rows=5, cols=2)
     table.style = 'Table Grid'
-
-    # Fill in assessment data
-    assessments = [
-        ('Assignment', '35%'),
-        ('Practical', '20%'),
-        ('Project', '35%'),
-        ('Presentation', '10%'),
-    ]
-
-    # Populate the table
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Assessment'
-    hdr_cells[1].text = '%'
-
-    for i, (assessment, percentage) in enumerate(assessments, 1):
-        row_cells = table.rows[i].cells
-        row_cells[0].text = assessment
-        row_cells[1].text = percentage
+    file_extension_grading = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_grading == 'xlsx':
+        workbook_grading = load_workbook(file)
+        cover_page_grading = workbook_grading['Syllabus']
+        assessments = cover_page_grading['M5'].value.upper()
 
     # Add heading for Texts & References
     doc.add_paragraph('\nTexts & References', style='Heading 2')
 
     # Add references as a numbered list
-    references = [
-        'Lean UX: Designing Great Products with Agile Teams, 2016, Jeff Gothelf, Josh Seiden',
-        'A Project Guide to UX Design, 2009, Russ Unger, Carolyn Chandler',
-        'HTML Comprehensive Concepts and Techniques, Shelly, Woods, Dorin, 5th Edition, CT, B',
-        'Teach Yourself Visually HTML5, 2011, Mike Wooldridge, JW, B',
-        'Brilliant HTML5 & CSS3, 2011, Hill, Josh, PH, B',
-    ]
 
-    for i, reference in enumerate(references, 1):
-        doc.add_paragraph(f'{i}. {reference}', style='List Number')
+    file_extension_references = file.filename.rsplit('.', 1)[1].lower()
+    if file_extension_references == 'xlsx':
+        workbook_references = load_workbook(file)
+        cover_page_references = workbook_references['Syllabus Summary']
+        diploma_text_references = cover_page_references['B16'].value.upper()
 
+    diploma = doc.add_paragraph(diploma_text_references)
 
 
     # Save the document to an in-memory file

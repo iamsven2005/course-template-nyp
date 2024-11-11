@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="cupcake">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,20 +9,21 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="card items-center mx-auto p-6">
     <div class="card-body">
         <div class="card-title">
             Upload files and input topics with learning units
         </div>
-        
+
         <!-- File Upload Form -->
-        <form action="/upload" method="post" enctype="multipart/form-data" class="flex flex-wrap flex-col">
+        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="flex flex-wrap flex-col">
             <label for="docx_file">Upload DOCX File:</label>
             <input type="file" name="docx_file" accept=".docx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
-        
+
             <label for="xlsx_file" class="mt-4">Upload XLSX File:</label>
             <input type="file" name="xlsx_file" accept=".xlsx" class="file-input file-input-bordered file-input-primary w-full max-w-xs">
-            
+
             <!-- Dynamic Input Fields for Topics and Learning Units -->
             <div id="topic-fields" class="mt-4">
                 <label>Topics and Learning Units:</label>
