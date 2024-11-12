@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 from docx import Document                   
 from docx.shared import Pt, Inches, RGBColor  
 from docx.enum.text import WD_ALIGN_PARAGRAPH 
-
+import re
 
 
 
@@ -681,16 +681,52 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
 
     doc.add_paragraph('Assessments', style='Heading 2')
 
-    # Create table for assessments
-    table = doc.add_table(rows=5, cols=2)
-    table.style = 'Table Grid'
+    # Assuming `file` is an uploaded XLSX file
     file_extension_grading = file.filename.rsplit('.', 1)[1].lower()
     if file_extension_grading == 'xlsx':
         workbook_grading = load_workbook(file)
         cover_page_grading = workbook_grading['Syllabus']
+        
+        # Extract the value from cell M5 and convert it to uppercase
         assessments = cover_page_grading['M5'].value.upper()
+        
+        # Remove "E.G." if present
+        assessments = assessments.replace("E.G.", "").strip()
 
-    # Add heading for Texts & References
+        # Split the assessments text into separate tasks based on "ASSN TASK"
+        tasks = [task.strip() for task in assessments.split("ASSN TASK") if task.strip()]
+        
+        # Create a table with three columns: Assessment, Details, Percentage
+        table = doc.add_table(rows=1, cols=3)
+        table.style = 'Table Grid'
+
+        # Set header row
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Assessment'
+        hdr_cells[1].text = 'Details'
+        hdr_cells[2].text = 'Percentage'
+
+        # Iterate over each task and add it as a new row in the table
+        for task in tasks:
+            # Add "Assn Task" back to the start of each task for context
+            task_text = "Assn Task " + task
+            
+            # Use regular expression to separate percentage if it exists
+            match = re.search(r'(\d+%)', task_text)
+            if match:
+                # Extract the percentage and the remaining text
+                percentage = match.group(1)
+                details = task_text.replace(percentage, "").strip()
+            else:
+                # No percentage found, set percentage to empty and keep full text in details
+                percentage = ""
+                details = task_text
+
+            # Add a new row to the table for each task
+            row_cells = table.add_row().cells
+            row_cells[0].text = 'Assessment Details'
+            row_cells[1].text = details
+            row_cells[2].text = percentage
     doc.add_paragraph('\nTexts & References', style='Heading 2')
 
     # Add references as a numbered list

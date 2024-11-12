@@ -1,33 +1,18 @@
-from docx import Document
+import re
+import pandas
+import docx2txt
 
-def extract_text_between_sections(file_path, start_section, end_section):
-    # Open the Word document
-    doc = Document(file_path)
-    
-    # Variables to control extraction
-    extracting = False
-    extracted_text = []
-    
-    for paragraph in doc.paragraphs:
-        # Start extracting after the start section
-        if start_section in paragraph.text:
-            extracting = True
-            continue
-        
-        # Stop extracting when reaching the end section
-        if extracting and end_section in paragraph.text:
-            break
-        
-        # Append text if we're in the extraction range
-        if extracting:
-            extracted_text.append(paragraph.text)
-    
-    # Join extracted paragraphs into a single string
-    return "\n".join(extracted_text)
+INPUT_FILE = 'jantest2.docx'
+OUTPUT_FILE = 'jantest2.xlsx'
 
-# Usage
-file_path = '/home/mac/Downloads/source.docx'  # Replace with the path to your Word document
-start_section = "Course Aims"
-end_section = "Course Learning Outcomes"
-text_between_sections = extract_text_between_sections(file_path, start_section, end_section)
-print(text_between_sections)
+text = docx2txt.process(INPUT_FILE)
+results = re.findall(r'(\d+-\d+)\n\n(.*)\n\n(.*)\n\n(.*)', text)
+data = {'Case Number': [x[0] for x in results],
+        'Report Date': [x[1] for x in results],
+        'Address': [x[2] for x in results],
+        'Statute Descripiton': [x[3] for x in results]}
+
+data_frame = pandas.DataFrame(data=data)
+writer = pandas.ExcelWriter(OUTPUT_FILE)
+data_frame.to_excel(writer, 'Sheet1', index=False)
+writer.save()
