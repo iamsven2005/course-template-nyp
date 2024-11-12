@@ -647,8 +647,6 @@ def create_document(images_base64, base64_img_first, file, word_doc_path):
     if file_extension_topics == 'xlsx':
         workbook_topics = load_workbook(file)
         cover_page_topics = workbook_topics['Syllabus']
-        doc = Document()
-
         # Start iterating from row 5 in column 'C'
         for cell in cover_page_topics['C5:C{}'.format(cover_page_topics.max_row)]:
             for cell_obj in cell:  # cell_obj is each cell within the specified range
@@ -662,8 +660,6 @@ def create_document(images_base64, base64_img_first, file, word_doc_path):
     if file_extension_tasks == 'xlsx':
         workbook_tasks = load_workbook(file)
         cover_page_tasks = workbook_tasks['Syllabus']
-        doc = Document()
-
         # Start iterating from row 5 in column 'C'
         for cell in cover_page_tasks['C5:C{}'.format(cover_page_tasks.max_row)]:
             for cell_obj in cell:  # cell_obj is each cell within the specified range
