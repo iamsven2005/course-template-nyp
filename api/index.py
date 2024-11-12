@@ -66,7 +66,8 @@ def upload_file():
 
     if allowed_file(docx_file.filename) and allowed_file(xlsx_file.filename):
         try:
-            # Extract file extensions
+            topics = request.form.getlist('topics[]')
+            learning_units = request.form.getlist('learning_units[]')
             docx_extension = docx_file.filename.rsplit('.', 1)[1].lower()
             xlsx_extension = xlsx_file.filename.rsplit('.', 1)[1].lower()
 
@@ -85,7 +86,7 @@ def upload_file():
             # Get the base64 image of the logo from /logo.png
             logo_base64 = get_base64_image_from_file("public/static/images/logo.png")
             # Create document with logo image and XLSX data
-            doc_io = create_document(images_base64, logo_base64, xlsx_file, temp_docx_path)
+            doc_io = create_document(images_base64, logo_base64, xlsx_file, temp_docx_path, topics, learning_units)
 
             # Remove the temporary DOCX file after processing
             os.remove(temp_docx_path)
@@ -121,7 +122,7 @@ def extract_images_as_base64(file_stream, file_extension):
     return images_base64
 
 
-def create_document(images_base64, base64_img_first, file, word_doc_path):
+def create_document(images_base64, base64_img_first, file, word_doc_path, topics, learning_units):
     """Create a DOCX document with a provided base64 image first and extracted base64 images."""
     doc = Document()
     image_data = base64.b64decode(base64_img_first)
@@ -579,8 +580,19 @@ def create_document(images_base64, base64_img_first, file, word_doc_path):
     custom_run.font.name = 'Arial'
     custom_run.bold = True
 
-    #TODO: Frontend
-    ##End mapping tabling for cms##
+    table = doc.add_table(rows=1, cols=2)
+    table.style = 'Table Grid'
+
+            # Add headers
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Topic'
+    hdr_cells[1].text = 'Learning Unit'
+
+            # Populate table rows with topics and learning units
+    for topic, unit in zip(topics, learning_units):
+        row_cells = table.add_row().cells
+        row_cells[0].text = topic
+        row_cells[1].text = unit
 
 
 
