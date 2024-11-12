@@ -8,6 +8,7 @@
     <title>NYPTECH-FLASK</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </head>
 
 <body class="card items-center mx-auto p-6">
@@ -38,12 +39,12 @@
         </form>
     </div>
 
-    <!-- JavaScript to Add/Remove Fields -->
+    <!-- JavaScript to Add/Remove Fields and Enable Drag-and-Drop -->
     <script>
         function addField() {
             const topicFields = document.getElementById("topic-fields");
             const newField = document.createElement("div");
-            newField.classList.add("flex", "space-x-2", "mt-2");
+            newField.classList.add("flex", "space-x-2", "mt-2", "draggable-field");
             newField.innerHTML = `
                 <input type="text" name="topics[]" placeholder="Enter topic" class="input input-bordered w-full">
                 <input type="text" name="learning_units[]" placeholder="Enter learning unit" class="input input-bordered w-full">
@@ -55,6 +56,13 @@
         function removeField(button) {
             button.parentElement.remove();
         }
+
+        // Initialize SortableJS on the topic fields container
+        new Sortable(document.getElementById("topic-fields"), {
+            animation: 150,
+            handle: '.draggable-field', // This makes the entire row draggable
+            ghostClass: 'bg-gray-100', // Optional: add a ghost class for better visuals
+        });
     </script>
 </body>
 </html>
