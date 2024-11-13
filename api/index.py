@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from docx import Document                   
 from docx.shared import Pt, Inches, RGBColor  
 from docx.enum.text import WD_ALIGN_PARAGRAPH 
+from collections import defaultdict
 import re
 
 
@@ -42,6 +43,13 @@ def extract_images_as_base64(file_stream, file_extension):
 # Helper function to check allowed files
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def extract_tables_from_docx(doc_path):
+    """Extract tables from a DOCX file as python-docx Table objects."""
+    doc = Document(doc_path)
+    tables = []
+    for table in doc.tables:
+        tables.append(table)
+    return tables
 def get_base64_image_from_file(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
@@ -83,10 +91,14 @@ def upload_file():
             # Extract images from the uploaded DOCX file
             images_base64 = extract_images_as_base64(temp_docx_path, docx_extension)
 
+            # Extract tables from the uploaded DOCX file
+            extracted_tables = extract_tables_from_docx(temp_docx_path)
+
             # Get the base64 image of the logo from /logo.png
             logo_base64 = get_base64_image_from_file("public/static/images/logo.png")
+
             # Create document with logo image and XLSX data
-            doc_io = create_document(images_base64, logo_base64, xlsx_file, temp_docx_path, topics, learning_units)
+            doc_io = create_document(images_base64, logo_base64, xlsx_file, temp_docx_path, topics, learning_units, extracted_tables)
 
             # Remove the temporary DOCX file after processing
             os.remove(temp_docx_path)
@@ -122,7 +134,7 @@ def extract_images_as_base64(file_stream, file_extension):
     return images_base64
 
 
-def create_document(images_base64, base64_img_first, file, word_doc_path, topics, learning_units):
+def create_document(images_base64, base64_img_first, file, word_doc_path, topics, learning_units, tables):
     """Create a DOCX document with a provided base64 image first and extracted base64 images."""
     doc = Document()
     image_data = base64.b64decode(base64_img_first)
@@ -142,6 +154,57 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
 
         # Add the image to the document
         doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
+        def calculate_column_widths(table):
+            """
+            Calculate proportional widths for each column based on the text length.
+            """
+            # Dictionary to store total text length per column
+            column_text_length = defaultdict(int)
+
+            # Calculate the total text length for each column
+            for row in table.rows:
+                for col_idx, cell in enumerate(row.cells):
+                    cell_text_length = len(cell.text)
+                    column_text_length[col_idx] += cell_text_length
+
+            # Calculate total text length across all columns
+            total_text_length = sum(column_text_length.values())
+
+            # Calculate proportional width for each column
+            column_widths = {}
+            for col_idx, length in column_text_length.items():
+                proportion = length / total_text_length if total_text_length else 1 / len(column_text_length)
+                column_widths[col_idx] = Inches(6 * proportion)  # Assuming total width of 6 inches
+
+            return column_widths
+
+        def apply_column_widths(table, column_widths):
+            """
+            Apply calculated widths to each column in the table.
+            """
+            for row in table.rows:
+                for col_idx, cell in enumerate(row.cells):
+                    if col_idx in column_widths:
+                        cell.width = column_widths[col_idx]  # Set column width proportionally
+
+        # Insert tables into the document after introductory text
+        doc.add_paragraph("Below are the tables extracted from the original document:", style='Heading 2')
+
+        for table in tables:
+            column_width = calculate_column_widths(table)
+            new_table = doc.add_table(rows=len(table.rows), cols=len(table.columns))
+            new_table.style = 'Table Grid'
+
+            for i, row in enumerate(table.rows):
+                for j, cell in enumerate(row.cells):
+                    new_table.cell(i, j).text = cell.text
+                    for paragraph in new_table.cell(i, j).paragraphs:
+                        for run in paragraph.runs:
+                            run.font.size = Pt(11)
+                            run.font.name = 'Arial'
+            apply_column_widths(new_table, column_width)
+            doc.add_paragraph('')
+
 
 
     doc.add_paragraph('')
