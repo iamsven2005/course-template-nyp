@@ -190,22 +190,6 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
         # Insert tables into the document after introductory text
         doc.add_paragraph("Below are the tables extracted from the original document:", style='Heading 2')
 
-        # for table in tables:
-        #     column_width = calculate_column_widths(table)
-        #     new_table = doc.add_table(rows=len(table.rows), cols=len(table.columns))
-        #     new_table.style = 'Table Grid'
-
-        #     for i, row in enumerate(table.rows):
-        #         for j, cell in enumerate(row.cells):
-        #             new_table.cell(i, j).text = cell.text
-        #             for paragraph in new_table.cell(i, j).paragraphs:
-        #                 for run in paragraph.runs:
-        #                     run.font.size = Pt(11)
-        #                     run.font.name = 'Arial'
-        #     apply_column_widths(new_table, column_width)
-        #     doc.add_paragraph('')
-
-
 
     doc.add_paragraph('')
     doc.add_paragraph('')
@@ -315,6 +299,11 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
     run8.font.size = Pt(16)
     run8.font.name = 'Arial'
     run8.bold = True
+    doc.add_paragraph('')
+    doc.add_paragraph('')
+
+
+
 
     start_section = "Course Aims"
     end_section = "Course Learning Outcomes"
@@ -449,40 +438,20 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
     Sem.font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
 
 
-    # Create the table with 4 columns (Core Learning Units, Hours, Credits)
-    table = doc.add_table(rows=1, cols=3)
-    table.autofit = True
+    table_year1 = tables[10]
+    column_width = calculate_column_widths(table_year1)
+    new_table_year1 = doc.add_table(rows=len(table_year1.rows), cols=len(table_year1.columns))
+    new_table_year1.style = 'Table Grid'
+    for i, row in enumerate(table_year1.rows):
+        for j, cell in enumerate(row.cells):
+            new_table_year1.cell(i, j).text = cell.text
+            for paragraph in new_table_year1.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-    # Add the header row
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Core Learning Units'
-    hdr_cells[1].text = 'Hours'
-    hdr_cells[2].text = 'Credits'
-
-    # Define the content for Year 1 Semester 1 & 2
-    year_1_content = [
-        ('ITB111', 'UX Design', 60, 4),
-        ('ITB211', 'Statistical Research Methods', 60, 4),
-        ('ITB511', 'Programming', 60, 4),
-        ('ITB611', 'Network Administration', 30, 2),
-        ('ITB811', 'Business Needs Analysis', 30, 2),
-        ('ITB411', 'Data Modelling', 30, 2),
-        ('ITB221', 'Decision Analysis', 60, 4),
-        ('ITB521', 'Data Structures & Algorithms', 60, 4),
-        ('ITB621', 'Operating Systems Administration', 60, 4),
-        ('ITB731', 'Data Visualisation', 30, 2),
-        ('ITB911', 'Applied Cryptography', 30, 2),
-        ('ITB421', 'Data Storage Administration', 30, 2),
-        ('ITBW21', 'Visual Analytics Project', 30, 2),
-        ('', 'General Studies', '', '')
-    ]
-
-    # Populate the table for Year 1
-    for unit_code, unit_name, hours, credits in year_1_content:
-        row_cells = table.add_row().cells
-        row_cells[0].text = f"{unit_code} {unit_name}"
-        row_cells[1].text = str(hours)
-        row_cells[2].text = str(credits)
+    apply_column_widths(new_table_year1, column_width)
+    doc.add_paragraph('')
 
     doc.add_paragraph('')
     doc.add_paragraph('')
@@ -495,122 +464,38 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
     # Add "Year 2 – Semester 1 & 2" as a heading
     doc.add_paragraph('Year 2 – Semester 1 & 2', style='Heading 2').runs[0].font.color.rgb = RGBColor(0, 0, 0)
 
-    # Create the table for Year 2 – Semester 1 & 2
-    table2 = doc.add_table(rows=1, cols=3)
-    table2.autofit = True
+    #
+    table_year2 = tables[11]
+    column_width = calculate_column_widths(table_year2)
+    new_table_year2 = doc.add_table(rows=len(table_year2.rows), cols=len(table_year2.columns))
+    new_table_year2.style = 'Table Grid'
+    for i, row in enumerate(table_year2.rows):
+        for j, cell in enumerate(row.cells):
+            new_table_year2.cell(i, j).text = cell.text
+            for paragraph in new_table_year2.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-    # Add the header row for Year 2
-    hdr_cells = table2.rows[0].cells
-    hdr_cells[0].text = 'Core Learning Units'
-    hdr_cells[1].text = 'Hours'
-    hdr_cells[2].text = 'Credits'
-
-    # Define the content for Year 2 Semester 1 & 2
-    year_2_content = [
-        ('ITB231', 'Supervised Learning', 60, 4),
-        ('ITB531', 'Web Application Development', 60, 4),
-        ('ITB341', 'Data Wrangling', 30, 2),
-        ('ITB641', 'Data Integration & Clustering', 30, 2),
-        ('ITB141', 'Data Journalism', 30, 2),
-        ('ITB232', 'Unsupervised Learning', 30, 2),
-        ('ITB931', 'Data Privacy & Protection', 30, 2),
-        ('ITB441', 'Predictive Analytics Project', 30, 2),
-        ('ITB251', 'Topic Modelling & Sentiment Analysis', 60, 4),
-        ('ITB841', 'Big Data Modelling & Management', 60, 4),
-        ('ITB541', 'Programming for Data Science', 60, 4),
-        ('ITB721', 'Natural Language Processing', 30, 2),
-        ('ITB711', 'Emerging Technology Synthesis', 30, 2),
-        ('ITB831', 'Customer Experience Analysis', 30, 2),
-        ('ITBW51', 'Text & Social Analytics Project', 30, 2),
-        ('', 'General Studies', '', '')
-    ]
-
-    # Populate the table for Year 2
-    for unit_code, unit_name, hours, credits in year_2_content:
-        row_cells = table2.add_row().cells
-        row_cells[0].text = f"{unit_code} {unit_name}"
-        row_cells[1].text = str(hours)
-        row_cells[2].text = str(credits)
-
-    # Optional: Format the table font
-    for table in [table, table2]:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(11)
-                        run.font.name = 'Arial'
-
+    apply_column_widths(new_table_year2, column_width)
+    doc.add_paragraph('')
 
     doc.add_paragraph('Year 3 – Semester 1 & 2', style='Heading 2').runs[0].font.color.rgb = RGBColor(0, 0, 0)
 
-    # Create the table for Year 3 – Semester 1 & 2
-    table = doc.add_table(rows=1, cols=3)
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Core Learning Units'
-    hdr_cells[1].text = 'Hours'
-    hdr_cells[2].text = 'Credits'
+    table_year3 = tables[12]
+    column_width = calculate_column_widths(table_year3)
+    new_table_year3 = doc.add_table(rows=len(table_year3.rows), cols=len(table_year3.columns))
+    new_table_year3.style = 'Table Grid'
+    for i, row in enumerate(table_year3.rows):
+        for j, cell in enumerate(row.cells):
+            new_table_year3.cell(i, j).text = cell.text
+            for paragraph in new_table_year3.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-    # Define the content for Year 3 Semester 1 & 2
-    year_3_content = [
-        ('IT3301', 'Applied Machine Learning', 60, 4),
-        ('IT3381', 'Applied Deep Learning', 30, 2),
-        ('IT3382', 'Advanced Data Visualisation', 30, 2),
-        ('IT3383', 'Data Processing on Big Data', 30, 2),
-        ('IT3384', 'Data Platform Management', 30, 2),
-        ('IT3385', 'Machine Learning Operations', 30, 2),
-        ('IT3386', 'AI Services in Analytics', 30, 2),
-        ('IT3387', 'Marketing Strategy', 30, 2),
-        ('IT3331', 'Final Year Project', 480, 12),
-        ('IT3336', 'Internship Programme', 480, 12),
-        ('IT3333', 'Overseas Internship Programme', 480, 12),
-        ('IT3337', 'Final Year Project (24-week)', 960, 24),
-        ('IT3339', 'Internship Programme (24-week)', 960, 24),
-        ('IT3338', 'Overseas Internship Programme (24-week)', 960, 24),
-        ('', 'Prescribed Elective', 30, 2),
-        ('', 'General Studies', '', '')
-    ]
-
-    # Populate the table for Year 3
-    for unit_code, unit_name, hours, credits in year_3_content:
-        row_cells = table.add_row().cells
-        row_cells[0].text = f"{unit_code} {unit_name}"
-        row_cells[1].text = str(hours)
-        row_cells[2].text = str(credits)
-
-    # Add "Electives" section heading
-    electives_heading = doc.add_paragraph('Electives', style='Heading 1')
-    electives_heading.runs[0].font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
-
-    # Add "Prescribed Elective" as a subheading
-    prescribed_elective_heading = doc.add_paragraph('Prescribed Elective', style='Heading 2')
-    prescribed_elective_heading.runs[0].font.color.rgb = RGBColor(0, 0, 0)  # Set font color to black
-
-    # Create the table for Electives
-    table2 = doc.add_table(rows=1, cols=3)
-    hdr_cells2 = table2.rows[0].cells
-    hdr_cells2[0].text = 'Core Learning Units'
-    hdr_cells2[1].text = 'Hours'
-    hdr_cells2[2].text = 'Credits'
-
-    ##elective are not found in the top file
-    elective_content = [
-        ('IT3388', 'Big Data Management Project', 30, 2),
-        ('IT3389', 'Applied AI Project', 30, 2)
-    ]
-
-    for unit_code, unit_name, hours, credits in elective_content:
-        row_cells = table2.add_row().cells
-        row_cells[0].text = f"{unit_code} {unit_name}"
-        row_cells[1].text = str(hours)
-        row_cells[2].text = str(credits)
-    for table in [table, table2]:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(11)
-                        run.font.name = 'Arial'
+    apply_column_widths(new_table_year3, column_width)
+    doc.add_paragraph('')
 
     ##Manual Mapping Tables for CMS ##
     custom = doc.add_paragraph('Mapping Tables for Communication Skills & Mathematics Topics')
@@ -638,34 +523,20 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
 
     doc.add_paragraph('ITB111 UX DESIGN', style='Heading 2')
 
-    # Add course details table (Course, Course Code, Year, Duration, etc.)
-    table = doc.add_table(rows=6, cols=4)
-    table.style = 'Table Grid'
+    table_year2 = tables[15]
+    column_width = calculate_column_widths(table_year2)
+    new_table_year2 = doc.add_table(rows=len(table_year2.rows), cols=len(table_year2.columns))
+    new_table_year2.style = 'Table Grid'
+    for i, row in enumerate(table_year2.rows):
+        for j, cell in enumerate(row.cells):
+            new_table_year2.cell(i, j).text = cell.text
+            for paragraph in new_table_year2.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-    # Populate course details rows
-    details_content = [
-        ('Course:', 'Diploma in Applied AI & Analytics', 'Course Code:', 'ITDPEFA'),
-        ('Year:', '1', 'Duration / Credits:', '60 Hrs / 4'),
-        ('Pre/Co-requisite:', 'Nil', '', ''),
-        ('Async Lecture (AL):', '15', 'Practical (P):', '42'),
-        ('Tutorial (T):', '0', 'eLearning (E):', '3'),
-    ]
-
-    for i, (label1, value1, label2, value2) in enumerate(details_content):
-        row_cells = table.rows[i].cells
-        row_cells[0].text = label1
-        row_cells[1].text = value1
-        row_cells[2].text = label2
-        row_cells[3].text = value2
-
-    # Merge cells for the last row (Pre/Co-requisite row)
-    row_cells = table.rows[2].cells
-    row_cells[1].merge(row_cells[3])
-
-    # Merge cells for the next duration row
-    row_cells = table.rows[5].cells
-    row_cells[0].merge(row_cells[1])
-    row_cells[2].merge(row_cells[3])
+    apply_column_widths(new_table_year2, column_width)
+    doc.add_paragraph('')
 
     # Add Synopsis section
     doc.add_paragraph('Synopsis', style='Heading 2')
