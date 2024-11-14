@@ -190,20 +190,20 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
         # Insert tables into the document after introductory text
         doc.add_paragraph("Below are the tables extracted from the original document:", style='Heading 2')
 
-        for table in tables:
-            column_width = calculate_column_widths(table)
-            new_table = doc.add_table(rows=len(table.rows), cols=len(table.columns))
-            new_table.style = 'Table Grid'
+        # for table in tables:
+        #     column_width = calculate_column_widths(table)
+        #     new_table = doc.add_table(rows=len(table.rows), cols=len(table.columns))
+        #     new_table.style = 'Table Grid'
 
-            for i, row in enumerate(table.rows):
-                for j, cell in enumerate(row.cells):
-                    new_table.cell(i, j).text = cell.text
-                    for paragraph in new_table.cell(i, j).paragraphs:
-                        for run in paragraph.runs:
-                            run.font.size = Pt(11)
-                            run.font.name = 'Arial'
-            apply_column_widths(new_table, column_width)
-            doc.add_paragraph('')
+        #     for i, row in enumerate(table.rows):
+        #         for j, cell in enumerate(row.cells):
+        #             new_table.cell(i, j).text = cell.text
+        #             for paragraph in new_table.cell(i, j).paragraphs:
+        #                 for run in paragraph.runs:
+        #                     run.font.size = Pt(11)
+        #                     run.font.name = 'Arial'
+        #     apply_column_widths(new_table, column_width)
+        #     doc.add_paragraph('')
 
 
 
@@ -365,39 +365,33 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
             doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
 
 
+    clo_competency = doc.add_paragraph('Course Learning Outcomes')
+    run_clo = clo_competency.runs[0]
+    run_clo.font.size = Pt(16)
+    run_clo.font.name = 'Arial'
+    run_clo.bold = True
+    table1 = tables[0]
 
-    table = doc.add_table(rows=5, cols=2)
-    table.autofit = False
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Graduate Attribute (GA)'
-    hdr_cells[1].text = 'Course Learning Outcomes (CLOs)'
-    row_cells = table.rows[1].cells
-    row_cells[0].text = 'Professional Proficiency'
-    row_cells[1].text = 'CLO1: Apply technical knowledge and programming skills in the capacity of a business analytics IT professional.\n\nCLO2: Apply artificial intelligence and analytics technologies and tools to integrate technical and business knowledge to provide solution.\n\nCLO3: Demonstrate competence in artificial intelligence and analytics and be able to integrate and apply it effectively in different industry & domain.'
+    column_width = calculate_column_widths(table1)
 
-# Row 2: Competent in 21st Century Skills
-    row_cells = table.rows[2].cells
-    row_cells[0].text = 'Competent in 21st Century Skills'
-    row_cells[1].text = 'CLO4: Display the abilities to stay relevant by demonstrating independent learning, self-awareness and mental resilience, and personal effectiveness.\n\nCLO5: Demonstrate interpersonal skills and global perspectives by communicating and working effectively with people from diverse backgrounds.'
+    new_table1 = doc.add_table(rows=len(table1.rows), cols=len(table1.columns))
+    new_table1.style = 'Table Grid'
 
-# Row 3: Innovative and Enterprising
-    row_cells = table.rows[3].cells
-    row_cells[0].text = 'Innovative and Enterprising'
-    row_cells[1].text = 'CLO6: Apply innovative and enterprising practices to achieve intended goals and drive continuous improvement with an interdisciplinary approach.'
+    for i, row in enumerate(table1.rows):
+        new_table1.cell(i, 0).text = f"CLO{i + 1}"
+        
+        for j, cell in enumerate(row.cells):
+            if j > 0:  # Skip the first column s it's already set to "CLO1", "CLO2", etc.
+                new_table1.cell(i, j).text = cell.text
+            
+            for paragraph in new_table1.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-# Row 4: Socially Responsible
-    row_cells = table.rows[4].cells
-    row_cells[0].text = 'Socially Responsible'
-    row_cells[1].text = 'CLO7: Display personal and professional values and ethics by demonstrating inclusivity and responsibility towards the community, nation, and the world, and considering impact of actions and decisions on sustainability.'
-    for row in table.rows:
-        for cell in row.cells:
-            paragraphs = cell.paragraphs
-            for paragraph in paragraphs:
-                run = paragraph.runs
-                for r in run:
-                    r.font.name = 'Arial'
-                    r.font.size = Pt(12)
-    doc.add_page_break()
+    apply_column_widths(new_table1, column_width)
+    doc.add_paragraph('')
+
 
 
     title_competency = doc.add_paragraph('Competency Canvases')
@@ -415,47 +409,29 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
     run13.font.name = 'Arial'
 
 
-    table = doc.add_table(rows=10, cols=2)
+    competency_table = tables[2]
+    column_width = calculate_column_widths(competency_table)
+    competency_new_table = doc.add_table(rows=len(competency_table.rows), cols=len(competency_table.columns))
+    competency_new_table.style = 'Table Grid'
 
-    hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'CC#'
-    hdr_cells[1].text = 'Course Competencies (CCs)'
+    for i, row in enumerate(competency_table.rows):
+        # Start inserting "CLO" labels from the second row (index 1)
+        if i > 0:
+            competency_new_table.cell(i, 0).text = f"CC{i}"  # Start counting from "CLO1" on the second row
+        
+        for j, cell in enumerate(row.cells):
+            if j > 0:  # Skip the first column as it's already set for CLO
+                competency_new_table.cell(i, j).text = cell.text
+            
+            # Set font size and font name for each cell
+            for paragraph in competency_new_table.cell(i, j).paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(11)
+                    run.font.name = 'Arial'
 
-    # Manually filling in the content for each row
-    content = [
-        ('CC1', 'Data Visualisation & Journalism\n\nLearners will be competent in applying data visualisation and journalism techniques and tools to communicate data insights effectively with stakeholders to support business needs.'),
-        ('CC2', 'Analytics & Computational Modelling\n\nLearners will be competent in applying data analytics and computational modelling skills using tools and algorithms to solve business problems.'),
-        ('CC3', 'Applied Artificial Intelligence (AI)\n\nLearners will be competent in applying AI to build intelligent machine reasoning applications that derive hidden patterns and support decision-making.'),
-        ('CC4', 'Data Administration & Management\n\nLearners will be competent in Big Data administration and management through data modelling and data manipulation techniques to meet business requirements.'),
-        ('CC5', 'Analytics with Programming\n\nLearners will be competent in developing IT & data analytics applications according to users’ and business needs.'),
-        ('CC6', 'Data Strategy & Design\n\nLearners will be competent to design robust data strategies to manage Big Data platforms aligned to stakeholders’ business values.'),
-        ('CC7', 'Emerging Technology & Applications\n\nLearners will be competent to synthesise and integrate different emerging technology trends and developments to value-add and provide solutions for businesses.'),
-        ('CC8', 'Business Needs Analysis & Strategy\n\nLearners will be competent to apply the business needs analysis and strategy skills to deliver service excellence for customers with diverse backgrounds.'),
-        ('CC9', 'Data Security & Governance\n\nLearners will be well-versed in data security and governance and competent to apply cybersecurity principles to uphold personal and professional ethics.')
-    ]
+    apply_column_widths(competency_new_table, column_width)
+    doc.add_paragraph('')
 
-    # Fill each row with the CC content
-    for i, (cc, desc) in enumerate(content, 1):
-        row_cells = table.rows[i].cells
-        row_cells[0].text = cc
-        row_cells[1].text = desc
-
-    # Optional: format font and style of the table content (for example, Arial, size 12)
-    for row in table.rows:
-        for cell in row.cells:
-            paragraphs = cell.paragraphs
-            for paragraph in paragraphs:
-                run = paragraph.runs
-                for r in run:
-                    r.font.name = 'Arial'
-                    r.font.size = Pt(12)
-
-    # Align text vertically and horizontally (optional)
-    for row in table.rows:
-        for cell in row.cells:
-            cell.vertical_alignment = WD_ALIGN_PARAGRAPH.CENTER
-            for paragraph in cell.paragraphs:
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
 
     competence = doc.add_paragraph('Course Structure', style='Heading 1')
