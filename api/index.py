@@ -325,31 +325,33 @@ def create_document(images_base64, base64_img_first, file, word_doc_path, topics
     course_run_outcome.font.name = 'Arial'
 
 
-    for image_filename, image_b64 in images_base64:
+    for index, (image_filename, image_b64) in enumerate(images_base64):
+    # Only add the second image (index 1)
+        if index == 1:
+            title2 = doc.add_paragraph('Course Competency Map')
+            run8 = title2.runs[0]
+            run8.font.size = Pt(16)
+            run8.font.name = 'Arial'
+            run8.bold = True
 
-        title2 = doc.add_paragraph('Course Competency Map')
-        run8 = title2.runs[0]
-        run8.font.size = Pt(16)
-        run8.font.name = 'Arial'
-        run8.bold = True
-        # Decode base64 image and open with PIL
-        image_data = base64.b64decode(image_b64)
-        image_stream = BytesIO(image_data)
+            # Decode base64 image and open with PIL
+            image_data = base64.b64decode(image_b64)
+            image_stream = BytesIO(image_data)
 
-        # Open image with PIL to determine size
-        with Image.open(image_stream) as img:
-            max_width = 6.0  # Max width in inches
-            width, height = img.size
-            aspect_ratio = width / height
+            # Open image with PIL to determine size
+            with Image.open(image_stream) as img:
+                max_width = 6.0  # Max width in inches
+                width, height = img.size
+                aspect_ratio = width / height
 
-            if width > height:
-                adjusted_width = min(max_width, width / 96)  # Convert pixels to inches (assuming 96 dpi)
-                adjusted_height = adjusted_width / aspect_ratio
-            else:
-                adjusted_height = min(max_width, height / 96)
-                adjusted_width = adjusted_height * aspect_ratio
+                if width > height:
+                    adjusted_width = min(max_width, width / 96)  # Convert pixels to inches (assuming 96 dpi)
+                    adjusted_height = adjusted_width / aspect_ratio
+                else:
+                    adjusted_height = min(max_width, height / 96)
+                    adjusted_width = adjusted_height * aspect_ratio
 
-            doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
+                doc.add_picture(image_stream, width=Inches(adjusted_width), height=Inches(adjusted_height))
 
 
     clo_competency = doc.add_paragraph('Course Learning Outcomes')
